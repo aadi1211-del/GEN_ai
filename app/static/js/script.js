@@ -109,10 +109,17 @@
 				messages.insertAdjacentHTML("beforeend", `<div class="chat-message user mb-3"></div>`);
 				messages.lastElementChild.textContent = message;
 				input.value = "";
+				const sendButton = $("button[type=submit]", chatForm);
+				setLoading(sendButton, true);
+				messages.insertAdjacentHTML("beforeend", '<div id="chat-thinking" class="chat-message assistant mb-3">Thinking...</div>');
+				messages.scrollTop = messages.scrollHeight;
+				const controller = new AbortController();
+				const timeout = window.setTimeout(() => controller.abort(), 60000);
 				try {
 					const response = await fetch("/api/chat", {
 						method: "POST",
 						headers: { "Content-Type": "application/json", Accept: "application/json" },
+						signal: controller.signal,
 						body: JSON.stringify({
 							message,
 							session_id: chatForm.dataset.sessionId || null,
@@ -122,11 +129,16 @@
 					const data = await response.json();
 					if (!response.ok) throw new Error(data.error || "The message could not be sent.");
 					chatForm.dataset.sessionId = data.session_id;
+					$("#chat-thinking")?.remove();
 					messages.insertAdjacentHTML("beforeend", `<div class="chat-message assistant mb-3"></div>`);
 					messages.lastElementChild.textContent = data.reply;
 					messages.scrollTop = messages.scrollHeight;
 				} catch (error) {
-					showToast(error.message, "danger");
+					$("#chat-thinking")?.remove();
+					showToast(error.name === "AbortError" ? "The response took too long. Please try again." : error.message, "danger");
+				} finally {
+					window.clearTimeout(timeout);
+					setLoading(sendButton, false);
 				}
 			});
 		}

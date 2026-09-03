@@ -10,6 +10,7 @@ scoped to the document(s) a chat session is linked to.
 """
 import os
 import uuid
+from functools import lru_cache
 from flask import current_app
 
 
@@ -17,6 +18,7 @@ class RAGServiceError(Exception):
     pass
 
 
+@lru_cache(maxsize=1)
 def _get_embedding_function():
     """
     Uses a local sentence-transformer embedding model via Chroma's default
@@ -26,11 +28,15 @@ def _get_embedding_function():
     return embedding_functions.DefaultEmbeddingFunction()
 
 
-def _get_chroma_client():
+@lru_cache(maxsize=4)
+def _get_chroma_client(persist_dir: str):
     import chromadb
-    persist_dir = current_app.config["CHROMA_PERSIST_DIR"]
     os.makedirs(persist_dir, exist_ok=True)
     return chromadb.PersistentClient(path=persist_dir)
+
+
+def _chroma_client():
+    return _get_chroma_client(current_app.config["CHROMA_PERSIST_DIR"])
 
 
 def extract_text_from_pdf(filepath: str) -> str:
@@ -78,7 +84,7 @@ def ingest_document(filepath: str, filename: str, user_id: int) -> dict:
 
     collection_name = f"user{user_id}_{uuid.uuid4().hex[:10]}"
 
-    client = _get_chroma_client()
+    client = _chroma_client()
     collection = client.get_or_create_collection(
         name=collection_name,
         embedding_function=_get_embedding_function(),
@@ -98,7 +104,7 @@ def retrieve_context(collection_name: str, query: str, k: int | None = None) -> 
     """Retrieve the top-k most relevant chunks for a query and join them
     into a single context block for the LLM prompt."""
     k = k or current_app.config["RETRIEVAL_K"]
-    client = _get_chroma_client()
+    client = _chroma_client()
 
     try:
         collection = client.get_collection(
@@ -118,7 +124,7 @@ def retrieve_context(collection_name: str, query: str, k: int | None = None) -> 
 
 def delete_document_collection(collection_name: str) -> None:
     try:
-        client = _get_chroma_client()
+        client = _chroma_client()
         client.delete_collection(name=collection_name)
     except Exception:
         pass  # best-effort cleanup
