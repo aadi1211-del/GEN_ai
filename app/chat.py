@@ -3,7 +3,7 @@ from flask_login import current_user, login_required
 
 from app.extensions import db
 from app.models import ChatMessage, ChatSession, Document
-from app.services.ai_service import generate_response
+from app.services.ai_service import generate_response, render_markdown
 from app.services import rag_service
 
 
@@ -69,4 +69,4 @@ def send_message():
     db.session.add(ChatMessage(session_id=session.id, role="user", content=message))
     db.session.add(ChatMessage(session_id=session.id, role="assistant", content=result["reply"]))
     db.session.commit()
-    return jsonify({**result, "session_id": session.id})
+    return jsonify({**result, "reply_html": render_markdown(result["reply"]), "session_id": session.id})

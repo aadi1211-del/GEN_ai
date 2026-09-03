@@ -29,7 +29,7 @@
         <div id="chat-messages" class="chat-messages flex-grow-1 mb-3">
           {% if active_session and active_session.messages %}
             {% for message in active_session.messages %}
-              <div class="chat-message {{ message.role }} mb-3">{{ message.content }}</div>
+              <div class="chat-message {{ message.role }} mb-3">{{ message.content|markdown|safe }}</div>
             {% endfor %}
           {% else %}
             <div id="chat-empty" class="text-center text-secondary py-5">Start a conversation with Gemini.</div>

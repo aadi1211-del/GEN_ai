@@ -137,7 +137,7 @@
 					chatForm.dataset.sessionId = data.session_id;
 					$("#chat-thinking")?.remove();
 					messages.insertAdjacentHTML("beforeend", `<div class="chat-message assistant mb-3"></div>`);
-					messages.lastElementChild.textContent = data.reply;
+					messages.lastElementChild.innerHTML = data.reply_html || data.reply;
 					messages.scrollTop = messages.scrollHeight;
 				} catch (error) {
 					$("#chat-thinking")?.remove();

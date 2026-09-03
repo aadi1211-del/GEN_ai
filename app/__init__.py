@@ -15,6 +15,12 @@ def create_app(config_class=Config):
 	app = Flask(__name__)
 	app.config.from_object(config_class)
 
+	from app.services.ai_service import render_markdown
+
+	@app.template_filter("markdown")
+	def markdown_filter(value):
+		return render_markdown(value)
+
 	@app.errorhandler(Exception)
 	def handle_api_error(error):
 		if request.path.startswith("/api/"):

@@ -12,7 +12,20 @@ Design notes for the report / viva:
 - If no API key is configured, the app degrades gracefully instead of
   crashing - useful for offline demos of the UI/DB/auth layers.
 """
+import html
+
 from flask import current_app
+
+
+def render_markdown(text: str) -> str:
+    """Render model Markdown after escaping raw HTML from model output."""
+    import markdown
+
+    return markdown.markdown(
+        html.escape(text or ""),
+        extensions=["extra", "nl2br"],
+        output_format="html5",
+    )
 
 
 SYSTEM_PROMPT = (
