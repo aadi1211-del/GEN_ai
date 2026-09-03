@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — NeuraForge{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+      <h3 class="fw-bold mb-0">Welcome, {{ current_user.username }} 👋</h3>
+      <p class="text-secondary small mb-0">Here's what's happening in your workspace.</p>
+    </div>
+    <a href="{{ url_for('chat.chat_page') }}" class="btn nf-btn-primary"><i class="bi bi-plus-lg me-1"></i>New Chat</a>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="nf-card p-4">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <p class="text-secondary small mb-1">Chat Sessions</p>
+            <h3 class="fw-bold mb-0">{{ sessions|length }}</h3>
+          </div>
+          <i class="bi bi-chat-dots fs-2 nf-icon-accent"></i>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="nf-card p-4">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <p class="text-secondary small mb-1">Documents Uploaded</p>
+            <h3 class="fw-bold mb-0">{{ documents|length }}</h3>
+          </div>
+          <i class="bi bi-file-earmark-pdf fs-2 nf-icon-accent"></i>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="nf-card p-4">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <p class="text-secondary small mb-1">Total Chunks Indexed</p>
+            <h3 class="fw-bold mb-0">{{ documents|sum(attribute='chunk_count') }}</h3>
+          </div>
+          <i class="bi bi-diagram-3 fs-2 nf-icon-accent"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <div class="nf-card p-4">
+        <h6 class="fw-bold mb-3">Recent Chat Sessions</h6>
+        {% if sessions %}
+          <div class="list-group list-group-flush">
+            {% for s in sessions[:6] %}
+            <a href="{{ url_for('chat.chat_page', session_id=s.id) }}" class="list-group-item list-group-item-action nf-list-item d-flex justify-content-between align-items-center">
+              <span><i class="bi bi-chat-left-text me-2 text-secondary"></i>{{ s.title }}</span>
+              <span class="badge nf-tech-badge">{{ s.messages|length }} msgs</span>
+            </a>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-secondary small mb-0">No chats yet. <a href="{{ url_for('chat.chat_page') }}">Start your first conversation</a>.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="col-lg-5">
+      <div class="nf-card p-4">
+        <h6 class="fw-bold mb-3">Your Documents</h6>
+        {% if documents %}
+          <div class="list-group list-group-flush">
+            {% for d in documents[:6] %}
+            <div class="list-group-item nf-list-item d-flex justify-content-between align-items-center">
+              <span><i class="bi bi-file-earmark-pdf-fill me-2 text-danger"></i>{{ d.filename }}</span>
+              <span class="badge nf-tech-badge">{{ d.chunk_count }} chunks</span>
+            </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-secondary small mb-0">No documents yet. <a href="{{ url_for('documents.documents_page') }}">Upload a PDF</a> to enable RAG chat.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Login — NeuraForge{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+      <div class="nf-card p-4 p-md-5 mt-4">
+        <h3 class="fw-bold mb-1 text-center">Welcome back</h3>
+        <p class="text-secondary text-center mb-4 small">Login to continue to NeuraForge</p>
+
+        <form method="POST" action="{{ url_for('auth.login') }}">
+          <div class="mb-3">
+            <label class="form-label">Username or Email</label>
+            <input type="text" name="username" class="form-control nf-input" required autofocus>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input type="password" name="password" class="form-control nf-input" required>
+          </div>
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" name="remember" id="remember">
+            <label class="form-check-label small text-secondary" for="remember">Remember me</label>
+          </div>
+          <button type="submit" class="btn nf-btn-primary w-100">Login</button>
+        </form>
+
+        <p class="text-center text-secondary small mt-4 mb-0">
+          Don't have an account? <a href="{{ url_for('auth.register') }}">Sign up</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Chat - NeuraForge{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+      <h3 class="fw-bold mb-0">NeuraForge Chat</h3>
+      <p class="text-secondary small mb-0">Ask Gemini a question about your work.</p>
+    </div>
+    <a href="{{ url_for('chat.chat_page') }}" class="btn nf-btn-primary"><i class="bi bi-plus-lg me-1"></i>New Chat</a>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-3">
+      <div class="nf-card p-3">
+        <h6 class="fw-bold mb-3">Recent chats</h6>
+        {% for session in sessions %}
+          <a href="{{ url_for('chat.chat_page', session_id=session.id) }}" class="list-group-item list-group-item-action nf-list-item rounded mb-1">
+            <i class="bi bi-chat-left-text me-2 text-secondary"></i>{{ session.title }}
+          </a>
+        {% else %}
+          <p class="text-secondary small mb-0">No saved chats yet.</p>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="col-lg-9">
+      <div class="nf-card p-4 chat-shell d-flex flex-column">
+        <div id="chat-messages" class="chat-messages flex-grow-1 mb-3">
+          {% if active_session and active_session.messages %}
+            {% for message in active_session.messages %}
+              <div class="chat-message {{ message.role }} mb-3">{{ message.content }}</div>
+            {% endfor %}
+          {% else %}
+            <div id="chat-empty" class="text-center text-secondary py-5">Start a conversation with Gemini.</div>
+          {% endif %}
+        </div>
+        <form id="chat-form" class="chat-composer" data-session-id="{{ active_session.id if active_session else '' }}">
+          <div class="mb-2">
+            <label class="form-label small text-secondary mb-1" for="chat-document">Ground response in a document</label>
+            <select id="chat-document" class="form-select nf-input" {% if not documents %}disabled{% endif %}>
+              <option value="">No document</option>
+              {% for document in documents %}
+                <option value="{{ document.id }}" {% if active_session and active_session.document_id == document.id %}selected{% endif %}>{{ document.filename }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="input-group">
+            <textarea id="chat-input" class="form-control nf-input" rows="1" placeholder="Ask a question..." required></textarea>
+            <button class="btn nf-btn-primary" type="submit"><i class="bi bi-send me-1"></i>Send</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+{% endblock %}

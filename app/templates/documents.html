@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Documents - NeuraForge{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+      <h3 class="fw-bold mb-0">Your Documents</h3>
+      <p class="text-secondary small mb-0">Upload PDFs to ground Gemini responses in your own files.</p>
+    </div>
+    <a href="{{ url_for('chat.chat_page') }}" class="btn nf-btn-primary">Open Chat</a>
+  </div>
+
+  <div class="nf-card p-4 mb-4">
+    <form action="{{ url_for('documents.upload_document') }}" method="POST" enctype="multipart/form-data" data-api-form>
+      <label class="upload-zone d-block text-center p-4" for="document-file">
+        <i class="bi bi-cloud-arrow-up fs-1 nf-icon-accent"></i>
+        <h6 class="fw-bold mt-2 mb-1">Upload a PDF</h6>
+        <p class="text-secondary small mb-3">Choose a document to index for retrieval-augmented chat.</p>
+        <input class="form-control nf-input mx-auto" style="max-width: 28rem" id="document-file" type="file" name="file" accept="application/pdf" required>
+      </label>
+      <div class="text-end mt-3">
+        <button class="btn nf-btn-primary" type="submit"><i class="bi bi-upload me-1"></i>Upload document</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="nf-card p-4">
+    <h6 class="fw-bold mb-3">Indexed documents</h6>
+    {% if documents %}
+      <div class="list-group list-group-flush">
+        {% for document in documents %}
+        <div class="list-group-item nf-list-item d-flex justify-content-between align-items-center gap-3" data-document-row>
+          <div class="text-truncate">
+            <i class="bi bi-file-earmark-pdf-fill text-danger me-2"></i>
+            <span>{{ document.filename }}</span>
+            <span class="badge nf-tech-badge ms-2">{{ document.chunk_count }} chunks</span>
+          </div>
+          <button class="btn btn-sm btn-outline-danger" type="button" data-delete-url="{{ url_for('documents.delete_document', doc_id=document.id) }}" title="Delete document">
+            <i class="bi bi-trash" aria-hidden="true"></i><span class="visually-hidden">Delete</span>
+          </button>
+        </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-secondary small mb-0">No documents indexed yet.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
