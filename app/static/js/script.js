@@ -126,7 +126,13 @@
 							document_id: $("#chat-document")?.value || null,
 						}),
 					});
-					const data = await response.json();
+					const responseText = await response.text();
+					let data;
+					try {
+						data = JSON.parse(responseText);
+					} catch {
+						throw new Error(`Server returned an unexpected response (${response.status}).`);
+					}
 					if (!response.ok) throw new Error(data.error || "The message could not be sent.");
 					chatForm.dataset.sessionId = data.session_id;
 					$("#chat-thinking")?.remove();

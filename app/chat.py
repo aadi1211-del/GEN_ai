@@ -59,7 +59,11 @@ def send_message():
     if session.document_id:
         document = Document.query.filter_by(id=session.document_id, user_id=current_user.id).first()
         if document:
-            context = rag_service.retrieve_context(document.collection_name, message)
+            try:
+                context = rag_service.retrieve_context(document.collection_name, message)
+            except rag_service.RAGServiceError as error:
+                db.session.rollback()
+                return jsonify({"error": str(error)}), 422
 
     result = generate_response(message, history, context)
     db.session.add(ChatMessage(session_id=session.id, role="user", content=message))

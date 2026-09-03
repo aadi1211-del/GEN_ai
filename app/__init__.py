@@ -6,7 +6,7 @@ real app inside the application factory (app/__init__.py).
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_cors import CORS
-from flask import Flask, render_template
+from flask import Flask, jsonify, render_template, request
 
 from app.config import Config
 from app.extensions import cors, db, login_manager
@@ -14,6 +14,13 @@ from app.extensions import cors, db, login_manager
 def create_app(config_class=Config):
 	app = Flask(__name__)
 	app.config.from_object(config_class)
+
+	@app.errorhandler(Exception)
+	def handle_api_error(error):
+		if request.path.startswith("/api/"):
+			db.session.rollback()
+			return jsonify({"error": "The chat request failed. Please try again."}), 500
+		raise error
 
 	db.init_app(app)
 	login_manager.init_app(app)
