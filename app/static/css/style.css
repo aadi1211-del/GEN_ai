@@ -16,6 +16,8 @@ body {
 	min-height: 100vh;
 	color: var(--nf-ink);
 	background:
+		linear-gradient(rgba(247, 249, 246, .88), rgba(238, 245, 241, .94)),
+		url("https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=2200&q=82") center / cover fixed,
 		radial-gradient(circle at 92% 8%, rgba(227, 109, 82, .11), transparent 23rem),
 		linear-gradient(135deg, #f7f9f6 0%, #eef5f1 100%);
 	font-family: "Inter", sans-serif;
